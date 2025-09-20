@@ -76,7 +76,7 @@ func fileProcessing(markdownFile markdown) {
 		log.Fatal(err)
 	}
 	// 写入结尾
-	_, _ = htmlFile.Write([]byte(htmlend))
+	_, _ = htmlFile.Write([]byte(htmlEnd))
 }
 
 // setIndexHtml 处理markdown文件并生成对应的HTML索引文件
@@ -103,7 +103,7 @@ func setIndexHtml(markdownFile markdown) {
 			urlName := filepath.Base(urlPath)
 			urlName = strings.TrimSuffix(urlName, ".html")
 
-			mdUrl := fmt.Sprintf(" - [%s](%s)\n\n", urlName, urlPath)
+			mdUrl := fmt.Sprintf("\n - [%s](%s)\n\n", urlName, urlPath)
 			fmt.Println(mdUrl)
 
 			// 不直接追加写入
@@ -147,7 +147,7 @@ func setIndexHtml(markdownFile markdown) {
 	}
 
 	//添加尾
-	_, _ = htmlFile.Write([]byte(htmlend))
+	_, _ = htmlFile.Write([]byte(htmlEnd))
 
 	// 清理index md模板
 	cleanIndexTemplateData, err := os.OpenFile(markdownFile.targetFile, os.O_WRONLY|os.O_TRUNC, 0775)
