@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-/main # 你的 Go 编译后的可执行文件
+/main
 
 # Test binary, built with `go test -c`
 *.test

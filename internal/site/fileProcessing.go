@@ -13,8 +13,8 @@ import (
 // fileCopy 将文件从markroot目录复制到wwwroot目录对应位置
 // filename参数指定源文件的完整路径
 // 如果目标目录不存在会自动创建
-func fileCopy(filename string) {
-	pointToFile := strings.Replace(filename, markroot, wwwroot, 1)
+func fileCopy(filename string, markdownPath string, webPath string) {
+	pointToFile := strings.Replace(filename, markdownPath, webPath, 1)
 
 	//检查目标目录
 	pointDir := filepath.Dir(pointToFile)
@@ -41,7 +41,7 @@ func fileCopy(filename string) {
 // fileProcessing 将指定的Markdown文件转换为HTML文件
 // 读取markdownFile.targetFile指定的Markdown文件内容，使用goldmark转换为HTML格式
 // 将转换后的HTML内容写入到markdownFile.pointToFile指定的路径
-func fileProcessing(markdownFile markdown) {
+func fileProcessing(markdownFile markdown, templatePath string) {
 	fmt.Println(markdownFile.pointToFile)
 	fmt.Println(markdownFile.targetFile)
 
@@ -65,18 +65,21 @@ func fileProcessing(markdownFile markdown) {
 		log.Fatal(err)
 	}
 	defer htmlFile.Close()
-
-	_, err = htmlFile.Write([]byte(pagehtmlHeader))
+	// 获取模板文件
+	pageHtmlFIle := LoadTemplate(templatePath, "/pageHtmlHeader.html")
+	htmlEndFile := LoadTemplate(templatePath, "/htmlEnd.html")
+	// 写入头模板
+	_, err = htmlFile.Write([]byte(pageHtmlFIle))
 	if err != nil {
 		return
 	}
-	// 写入html文件
+	// 写入转换后md
 	_, err = htmlFile.Write(buf.Bytes())
 	if err != nil {
 		log.Fatal(err)
 	}
 	// 写入结尾
-	_, _ = htmlFile.Write([]byte(htmlend))
+	_, _ = htmlFile.Write(htmlEndFile)
 }
 
 // setIndexHtml 处理markdown文件并生成对应的HTML索引文件
@@ -86,24 +89,24 @@ func fileProcessing(markdownFile markdown) {
 // 4. 使用goldmark将markdown转换为HTML并写入指定文件
 // 5. 清理模板文件，恢复原始内容
 // 参数markdownFile包含目标文件路径(targetFile)和输出HTML文件路径(pointToFile)
-func setIndexHtml(markdownFile markdown) {
+func setIndexHtml(markdownFile markdown, webPath string) {
 	//将index作为模板读取
 	indexTemplate, _ := os.ReadFile(markdownFile.targetFile)
 	indexTemplateProcessing := indexTemplate
 	fmt.Println("index:" + markdownFile.targetFile) //index:wwwmark/index.md
-	err := filepath.WalkDir(wwwroot, func(path string, d os.DirEntry, err error) error {
+	err := filepath.WalkDir(webPath, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		fmt.Println("indexHtml:" + path)
 
 		if strings.HasSuffix(path, ".html") {
-			urlPath := strings.Replace(path, wwwroot, ".", 1)
+			urlPath := strings.Replace(path, webPath, ".", 1)
 			fmt.Println(urlPath)
 			urlName := filepath.Base(urlPath)
 			urlName = strings.TrimSuffix(urlName, ".html")
 
-			mdUrl := fmt.Sprintf(" - [%s](%s)\n\n", urlName, urlPath)
+			mdUrl := fmt.Sprintf("\n - [%s](%s)\n\n", urlName, urlPath)
 			fmt.Println(mdUrl)
 
 			// 不直接追加写入
@@ -147,7 +150,7 @@ func setIndexHtml(markdownFile markdown) {
 	}
 
 	//添加尾
-	_, _ = htmlFile.Write([]byte(htmlend))
+	_, _ = htmlFile.Write([]byte(htmlEnd))
 
 	// 清理index md模板
 	cleanIndexTemplateData, err := os.OpenFile(markdownFile.targetFile, os.O_WRONLY|os.O_TRUNC, 0775)
@@ -160,8 +163,8 @@ func setIndexHtml(markdownFile markdown) {
 }
 
 // Clean 删除wwwroot目录及其所有内容
-func Clean() {
-	err := os.RemoveAll(wwwroot)
+func Clean(webPath string) {
+	err := os.RemoveAll(webPath)
 	if err != nil {
 		return
 	}
