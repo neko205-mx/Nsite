@@ -8,24 +8,22 @@ import (
 	"strings"
 )
 
+// markdown 定义html文件和markdown文件位置的结构体
 type markdown struct {
 	targetFile  string
 	pointToFile string
 }
 
-var markroot = "wwwmark"
-var wwwroot = "wwwroot"
-
-// Build 遍历 markroot 目录下的文件，处理所有 .css 文件和包含 "page" 的 .md 文件，
-// 将它们复制或转换为对应的 .html 文件到 wwwroot 目录下。
+// Build 遍历 markdownPath 目录下的文件，处理所有 .css 文件和包含 "page" 的 .md 文件，
+// 将它们复制或转换为对应的 .html 文件到 webPath 目录下。
 // 同时查找并处理 index.md 文件作为网站的首页。
-func Build() {
-	Clean()
-	err := filepath.WalkDir(markroot, func(path string, d os.DirEntry, err error) error {
-		if strings.Contains(path, ".css") {
-			fileCopy(path)
-		}
+func Build(webPath, markdownPath, templatePath string) {
 
+	Clean(webPath)
+	err := filepath.WalkDir(markdownPath, func(path string, d os.DirEntry, err error) error {
+		if strings.Contains(path, ".css") {
+			fileCopy(path, markdownPath, webPath)
+		}
 		if err != nil {
 			return err
 		}
@@ -33,7 +31,7 @@ func Build() {
 			//fmt.Println(path)
 			targetFile := path
 			//fmt.Println(targetFile)
-			pointToFile := strings.Replace(targetFile, markroot, wwwroot, 1)
+			pointToFile := strings.Replace(targetFile, markdownPath, webPath, 1)
 			pointToFile = strings.Replace(pointToFile, "md", "html", 1)
 			//fmt.Println(pointToFile)
 
@@ -41,7 +39,7 @@ func Build() {
 				targetFile:  targetFile,
 				pointToFile: pointToFile,
 			}
-			fileProcessing(mdFile)
+			fileProcessing(mdFile, templatePath)
 		}
 		//fmt.Printf("%s\n", path)
 		return nil
@@ -49,21 +47,21 @@ func Build() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = filepath.WalkDir(markroot, func(path string, d os.DirEntry, err error) error {
+	err = filepath.WalkDir(markdownPath, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		if strings.Contains(path, "index.md") {
 			fmt.Println(path)
 			targetFile := path
-			pointToFile := strings.Replace(targetFile, markroot, wwwroot, 1)
+			pointToFile := strings.Replace(targetFile, markdownPath, webPath, 1)
 			pointToFile = strings.Replace(pointToFile, "md", "html", 1)
 			mdFile := markdown{
 				targetFile:  targetFile,
 				pointToFile: pointToFile,
 			}
 			fmt.Println(mdFile)
-			setIndexHtml(mdFile)
+			setIndexHtml(mdFile, webPath)
 
 		}
 		return nil

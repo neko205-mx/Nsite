@@ -1,13 +1,14 @@
 package site
 
 import (
-	mathjax "github.com/litao91/goldmark-mathjax"
+	"github.com/litao91/goldmark-mathjax"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
 )
 
+// MdFull 自定义goldmark解析器，开启常见依赖支持
 func MdFull() goldmark.Markdown {
 	return goldmark.New(
 		goldmark.WithExtensions(

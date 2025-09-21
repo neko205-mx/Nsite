@@ -11,8 +11,6 @@ const indexMd = `## 主页`
 const testMd = `## 测试页面`
 
 const styleCss = `
-/* --- GitHub 风格 --- */
-
 /* --- 全局样式 --- */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
@@ -233,13 +231,13 @@ func InitHtmlTemplate(htmlTemplateDir string) {
 		log.Fatal(err)
 	}
 	// 创建文件
-	indexHtmlHeaderFile, err := os.Create(htmlTemplateDir + "/indexhtmlHeader.html")
+	indexHtmlHeaderFile, err := os.Create(htmlTemplateDir + "/indexHtmlHeader.html")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer indexHtmlHeaderFile.Close()
 
-	pageHtmlHeaderFile, err := os.Create(htmlTemplateDir + "/pagehtmlHeader.html")
+	pageHtmlHeaderFile, err := os.Create(htmlTemplateDir + "/pageHtmlHeader.html")
 	if err != nil {
 		log.Fatal(err)
 	}
