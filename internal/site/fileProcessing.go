@@ -42,17 +42,12 @@ func fileCopy(filename string, markdownPath string, webPath string) {
 // 读取markdownFile.targetFile指定的Markdown文件内容，使用goldmark转换为HTML格式
 // 将转换后的HTML内容写入到markdownFile.pointToFile指定的路径
 func fileProcessing(markdownFile markdown, templatePath string) {
-	fmt.Println(markdownFile.pointToFile)
-	fmt.Println(markdownFile.targetFile)
-
 	var buf bytes.Buffer
 	var data, _ = os.ReadFile(markdownFile.targetFile)
 
 	if err := MdFull().Convert(data, &buf); err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println(buf.String())
 
 	wwwDir := filepath.Dir(markdownFile.pointToFile)
 	err := os.MkdirAll(wwwDir, 0755)
@@ -93,21 +88,17 @@ func setIndexHtml(markdownFile markdown, webPath string) {
 	//将index作为模板读取
 	indexTemplate, _ := os.ReadFile(markdownFile.targetFile)
 	indexTemplateProcessing := indexTemplate
-	fmt.Println("index:" + markdownFile.targetFile) //index:wwwmark/index.md
 	err := filepath.WalkDir(webPath, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println("indexHtml:" + path)
 
 		if strings.HasSuffix(path, ".html") {
 			urlPath := strings.Replace(path, webPath, ".", 1)
-			fmt.Println(urlPath)
 			urlName := filepath.Base(urlPath)
 			urlName = strings.TrimSuffix(urlName, ".html")
 
 			mdUrl := fmt.Sprintf("\n - [%s](%s)\n\n", urlName, urlPath)
-			fmt.Println(mdUrl)
 
 			// 不直接追加写入
 			indexTemplateProcessing = append(indexTemplateProcessing, []byte(mdUrl)...)
@@ -124,8 +115,6 @@ func setIndexHtml(markdownFile markdown, webPath string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	println(markdownFile.targetFile)
 
 	var buf bytes.Buffer
 	var data, _ = os.ReadFile(markdownFile.targetFile)

@@ -21,6 +21,7 @@ func main() {
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
 	if *build {
+		logo()
 		err := viper.ReadInConfig()
 		if err != nil {
 			fmt.Println("config不存在或系统未初始化，请使用-init初始化")
@@ -36,9 +37,11 @@ func main() {
 		webroot := viper.GetString("paths.web")
 		site.Clean(webroot)
 	} else if *help {
+		logo()
 		flag.Usage()
 		fmt.Println("站点根目录位于wwwroot markdown根目录位于wwwmark")
 	} else if *init {
+		logo()
 		site.Init()
 		// 调用初始化 释放默认config.yaml 与相关模板
 		if err := viper.ReadInConfig(); err != nil {
@@ -55,4 +58,14 @@ func main() {
 		site.InitHtmlTemplate(template)
 		site.InitMdRoot(markdownroot)
 	}
+}
+
+func logo() {
+	logo := `
+   _  __  ____  ____ ______  ____
+  / |/ / / __/ /  _//_  __/ / __/
+ /    / _\ \  _/ /   / /   / _/  
+/_/|_/ /___/ /___/  /_/   /___/  
+`
+	fmt.Println(logo)
 }

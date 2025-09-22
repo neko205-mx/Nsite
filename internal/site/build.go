@@ -18,9 +18,10 @@ type markdown struct {
 // 将它们复制或转换为对应的 .html 文件到 webPath 目录下。
 // 同时查找并处理 index.md 文件作为网站的首页。
 func Build(webPath, markdownPath, templatePath string) {
-
+	fmt.Println("building...")
 	Clean(webPath)
 	err := filepath.WalkDir(markdownPath, func(path string, d os.DirEntry, err error) error {
+		fmt.Println("Processing file: " + path)
 		if strings.Contains(path, ".css") {
 			fileCopy(path, markdownPath, webPath)
 		}
@@ -28,12 +29,9 @@ func Build(webPath, markdownPath, templatePath string) {
 			return err
 		}
 		if strings.Contains(path, "page") && strings.Contains(path, "md") {
-			//fmt.Println(path)
 			targetFile := path
-			//fmt.Println(targetFile)
 			pointToFile := strings.Replace(targetFile, markdownPath, webPath, 1)
 			pointToFile = strings.Replace(pointToFile, "md", "html", 1)
-			//fmt.Println(pointToFile)
 
 			mdFile := markdown{
 				targetFile:  targetFile,
@@ -52,7 +50,7 @@ func Build(webPath, markdownPath, templatePath string) {
 			return err
 		}
 		if strings.Contains(path, "index.md") {
-			fmt.Println(path)
+			fmt.Println("Processing index file: " + path)
 			targetFile := path
 			pointToFile := strings.Replace(targetFile, markdownPath, webPath, 1)
 			pointToFile = strings.Replace(pointToFile, "md", "html", 1)
@@ -60,12 +58,12 @@ func Build(webPath, markdownPath, templatePath string) {
 				targetFile:  targetFile,
 				pointToFile: pointToFile,
 			}
-			fmt.Println(mdFile)
 			setIndexHtml(mdFile, webPath)
 
 		}
 		return nil
 	})
+	fmt.Println("build complete")
 	if err != nil {
 		log.Fatal(err)
 	}
